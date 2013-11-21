@@ -5,14 +5,10 @@ define([
 ],
 function(context, declare, AbstractVisualization) {
 
-  var Bar = declare([AbstractVisualization], {
-    constructor: function(type, controller, element) {
-      // Base class does:
+  // Base `Bar` on factory provided base class.
 
-      // this.type = type;
-      // this.controller = controller;
-      // this.element = element;
-    }
+  var Bar = declare([AbstractVisualization], {
+    // TODO
   });
 
   return Bar;
