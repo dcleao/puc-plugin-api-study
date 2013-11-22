@@ -12,20 +12,27 @@ The following main choices were taken:
 * use modules instead of JavaScript namespaces.
 * no globally published stuff.
 * easy to test stuff decoupled by design.
-* drop `pen.define` and `pen.require` and embrace `define` and `require`.
+* drop `pen.define` and `pen.require` and embrace `define` and `require`
+  (@codeoncoffee clarified that the reason for this is that
+   dojo 1.6 already defines `define` and `require` with different meaning).
 
 ## Use DOJO 1.9
-* AMD loader.
+* AMD loader
+  (@codeoncoffee clarified that some loader plugins currently
+   used by/with `requirejs` are not compatible with the dolo loader,
+   as the `AMD Loader Plugin` api, although similar, is not standardized).
 * Use as needed, as all of it is implemented as a big collection of separate AMD modules.
 * Fine OOP type system.
 * `dojo/Deferred` and Promises for asynchronous programming.
 * `dojo/Evented` for deriving classes that expose events.
 * `dojo/on`, a single façade for consuming DOM or Evented objects' events.
 * `dojo/i18n!` AMD loader plugin for localization.
-* Works on Node and Rhino.
+* Works on Node and Rhino (which is nice in what CGG is concerned, cause it uses Rhino).
 * Has a very nice documentation, for its core parts.
 * Not a very strong loop/iteration library...
-* Can still prefer using jQuery for all DOM-related stuff.
+  (@codeoncoffee said that _underscore.js_ is chosen as a functional library,
+   filling in this gap)
+* Can still prefer using _jQuery_ for all DOM-related stuff.
 * Would make it easier to integrate with or upgrade existing DOJO code.
 
 ## Each pentaho plugin
@@ -39,7 +46,7 @@ The following main choices were taken:
 * resolves to a context-aware `PentahoContext` object (aware of the location where it was "required" from).
 * has methods to obtain and register `services` (a la `angular` services) and/or AMD resources.
 * has methods to register for PUC notifications.
-* the only service-like thing provided through the AMD loader;
+* the only service-like thing provided through the AMD loader.
 * everything-else that "looks like a service" would be registered in the pentaho context.
 
 ## Example use of pentaho context object

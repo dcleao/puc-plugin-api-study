@@ -25,7 +25,7 @@ function(PentahoContext) {
     // This way, if the "!" is not used when loading this module,
     //  and the methods of pentaho context are called,
     //  it will fail, and hopefully, the error will become apparent.
-    //
+
     // Return the object implementing the "loader plugin interface".
     return {
         /**
@@ -41,6 +41,7 @@ function(PentahoContext) {
          * @return {*} the "require-context sensitive" pentaho context.
          *
          * @see http://livedocs.dojotoolkit.org/loader/amd#plugins
+         * @see http://requirejs.org/docs/plugins.html
          */
         load: function(id, require, callback) {
             // id is ignored

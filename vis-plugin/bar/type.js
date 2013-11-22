@@ -23,11 +23,11 @@ function(context, res) {
         // Vis. file is loaded asynchronously, and with a relative path!
         // AsyncFactory: a function that returns a Promise for the created instance.
         factory: context.bind([
-            'resource:./Vis'
-          ],
-          function(BarVis, visController, element) {
-            return new BarVis(/*visType*/this, visController, element);
-          }),
+                'resource::./Vis'
+            ],
+            function(BarVis, visController, element) {
+                return new BarVis(/*visType*/this, visController, element);
+            }),
 
         visualRoles: [
             {name: 'category', kind: 'discrete', label: res.visualRoleCategory},

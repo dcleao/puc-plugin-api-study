@@ -7,8 +7,8 @@ function(declare, Evented, Deferred) {
 
     var PentahoContext = declare([Evented], {
         constructor: function(parent, contextualRequire) {
-            this.parent  = parent || null;
-            this.root    = parent ? parent.root : this;
+            this.parent = parent || null;
+            this.root   = parent ? parent.root : this;
 
             /*global require:true */
             this.require = contextualRequire || require;
