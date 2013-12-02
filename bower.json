@@ -1,0 +1,24 @@
+{
+  "name": "puc-plugin-api-study",
+  "version": "0.0.1",
+  "homepage": "https://github.com/dcleao/puc-plugin-api-study",
+  "description": "A study...",
+  "keywords": [
+    "PUC",
+    "plugin",
+    "AMD",
+    "angular"
+  ],
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "dojo": "1.9.1",
+    "angular": "~1.2.3"
+  }
+}

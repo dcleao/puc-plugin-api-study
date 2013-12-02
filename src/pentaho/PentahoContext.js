@@ -8,6 +8,23 @@ define([
 function(declare, Evented, Deferred, when, all) {
 
     var PentahoContext = declare([Evented], {
+        /**
+         * @class Provides a central place for registering and obtaining
+         * application-wide services.
+         *
+         * By convention, service names use `:` to separate its components.
+         * This avoids possible confusions with
+         * JavaScript namespaces, in case `.` were used, or with
+         * AMD names, in case `/` were used.
+         *
+         * This class is not designed to be instantiated directly.
+         * Instead, an instance should be obtained by requiring
+         * its associated AMD plugin module,
+         * named `pentaho/context`.
+         *
+         * @name pentaho/PentahoContext
+         * @private
+         */
         constructor: function(parent, contextualRequire) {
             this.parent = parent || null;
             this.root   = parent ? parent.root : this;
@@ -124,7 +141,7 @@ function(declare, Evented, Deferred, when, all) {
             if(arguments.length === 2) factory = deps, deps = null;
 
             if(!factory) throw new Error("Argument 'factory' is required.");
-
+            if(typeof factory !== 'function') throw new Error("Argument 'factory' is not a function.");
             var reg = {
                 promise: null,
                 factory: factory,
@@ -154,7 +171,6 @@ function(declare, Evented, Deferred, when, all) {
          * @return {PentahoContext} the PentahoContext instance.
          */
         type: function(name, deps, ctor) {
-            // TODO: make the heart of it
             if(arguments.length === 2) ctor = deps, deps = null;
             if(!ctor) throw new Error("Argument 'ctor' is required.");
 
@@ -181,6 +197,10 @@ function(declare, Evented, Deferred, when, all) {
 
     // --------------
 
+    /**
+     * @class Handles one service resolution operation.
+     * @private
+     */
     var Resolve = function(context, locals) {
         this.context = context;
         this.locals  = locals;
@@ -191,37 +211,62 @@ function(declare, Evented, Deferred, when, all) {
         return all(deps.map(this.path, this));
     };
 
-    Resolve.prototype.path = function(path) {
-        if(!path) throw new Error("Empty service path.");
+    Resolve.prototype.error = function(msg) {
+        var defer = new Deferred();
+        defer.reject(new Error(msg));
+        return defer.promise;
+    };
 
-        // Parse the path
-        var isAll = path.charAt(path.length - 1) === '*';
-        if(isAll) { path = path.substr(0, path.length - 1); }
+    Resolve.prototype.path = function(path) {
+
+        if(!path) return this.error("Empty service path.");
+
+        // Analyze the path
+        var isAll = false;
+        var isOpt = false;
+        var modifier = path.charAt(path.length - 1);
+        switch(modifier) {
+            case '?': isOpt = true; break;
+            case '*': isOpt = isAll = true; break;
+            case '+': isAll = true; break;
+        }
+
+        if(isAll || isOpt) { path = path.substr(0, path.length - 1); }
 
         var key = '\0' + path;
-
-        if(this.resolvingPaths[key])
-            throw new Error("Recursive dependency found which includes '" + path + "'.");
+        if(this.resolvingPaths[key]) {
+            return this.error("Recursive dependency found which includes '" + path + "'.");
+        }
 
         this.resolvingPaths[key] = 1;
 
         // TODO: detect resource:: and service::
+
         var defer;
+        // Is the value provided in `locals`?
         var locals = this.locals;
         if(locals && O_hasOwn.call(locals, path)) {
-            // Care about isAll?
             defer = new Deferred();
-            defer.resolve(locals[path]);
+            var v = locals[path];
+            defer.resolve(isAll ? [v] : v);
             return defer.promise;
         }
 
+        // Check if there are any registrations for the service
         var registrations = this.context._registrationsByPath[key];
-        if(!registrations)
-            throw new Error("There are no services registered with name '" + path + "'.");
+        if(!registrations) {
+            if(!isOpt)
+                return this.error("There are no services registered with name '" + path + "'.");
+
+            defer = new Deferred();
+            defer.resolve(isAll ? [] : undefined);
+            return defer.promise;
+        }
 
         /*
           registrations =
           {
+            allPromise: Promise // for waiting for the * array
             first: {promise:, factory:, deps:, next: },
             last:  idem
           }
@@ -232,7 +277,7 @@ function(declare, Evented, Deferred, when, all) {
         if(isAll) {
             var allPromise = registrations.allPromise;
             if(!allPromise) {
-                var defer = new Deferred();
+                defer = new Deferred();
                 registrations.allPromise = allPromise = defer.promise;
                 chainPromiseToDeferred(this.registrations(registrations), defer);
             }
@@ -279,7 +324,7 @@ function(declare, Evented, Deferred, when, all) {
         return promise;
     };
 
-    Resolve.prototype.registrations = functions(regs) {
+    Resolve.prototype.registrations = function(regs) {
         var promises = [];
         var reg = regs.first;
         do { promises.push(this.registration(reg)); } while((reg = reg.next));

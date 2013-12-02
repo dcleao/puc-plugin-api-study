@@ -1,7 +1,11 @@
-define(['dojo/_base/declare', 'common-ui/angular', './hashKey'], function(declare, angular, angular_hashKey) {
+define([
+    'dojo/_base/declare',
+    'common-ui/angular',
+    './hashKey'
+], function(declare, angular, angular_hashKey) {
 
     var O_hasOwn = Object.prototype.hasOwnProperty;
-    var $pentahoAppMinErr = angular.minErr('$pentahoApp');
+    var $pentahoAppMinErr = angular.$$minErr('$pentahoApp');
 
     var PentahoAngularApp = declare([], {
         /**
@@ -30,10 +34,13 @@ define(['dojo/_base/declare', 'common-ui/angular', './hashKey'], function(declar
          * @return {pentaho/angular/PentahoAngularApp} the application.
          */
         bootstrap: function(element) {
+            if(!element) throw $pentahoAppMinErr('belem', "Argument 'element' is required.");
+
             if(this.bootstrapped || this.bootstrapping)
-                throw new Error("Invalid operation.");
+                throw $pentahoAppMinErr('bboot', "Already bootstrapped or bootstrapping.");
 
             this.bootstrapping = true;
+
             // ------
 
             var rootModules = this.rootModules.slice();
@@ -54,8 +61,9 @@ define(['dojo/_base/declare', 'common-ui/angular', './hashKey'], function(declar
             pentahoAngularApp_collectModules(rootModules, this.loadedModules);
 
             // ------
-            this.bootstrapping = false;
+
             this.bootstrapped  = true;
+            this.bootstrapping = false;
 
             return this;
         },
@@ -68,7 +76,7 @@ define(['dojo/_base/declare', 'common-ui/angular', './hashKey'], function(declar
          * @return {pentaho/angular/PentahoAngularApp} the application.
          */
         load: function(modules) {
-            if(!this.bootstrapped) throw new Error("Invalid operation.");
+            if(!this.bootstrapped) throw $pentahoAppMinErr('lboot', "Not bootstrapped yet.");
 
             var runBlocks = pentahoAngularApp_loadModules.call(this, modules);
 
@@ -95,24 +103,22 @@ define(['dojo/_base/declare', 'common-ui/angular', './hashKey'], function(declar
 
         function moduleFn($provide, $providerInjector) {
 
-            $app.$providerInjector = providerInjector;
+            $app.$providerInjector = $providerInjector;
 
             // Register `$app` as the "$app" service.
             // Will only be available in the run/instance phase.
             $provide.factory('$app', ['$injector', function($instanceInjector) {
                 $app.$injector = $instanceInjector;
+                return $app;
             }]);
 
             /* Return a run block to further initialize
              *  the $app service, before other modules.
              *
              * This run-block forces running the above registered factory
-             *  of the "$app" service, thus ending its initialization,
-             *  by providing it with the instance-injector.
+             *  of the "$app" service, ending its initialization.
              */
-            return ['$injector', '$app', function(instanceInjector, $app) {
-                $app.instanceInjector(instanceInjector);
-            }];
+            return ['$app', function() {}];
         }
 
         return ['$provide', '$injector', moduleFn];
@@ -181,7 +187,7 @@ define(['dojo/_base/declare', 'common-ui/angular', './hashKey'], function(declar
             try {
                 if(angular.isString(module)) {
                     // Get the module - must have been (globally) defined before.
-                    var moduleInst = angularModule(module);
+                    var moduleInst = angular.module(module);
 
                     // Accumulate "run" blocks to be run after all "config" blocks, at root.
                     runBlocks = runBlocks

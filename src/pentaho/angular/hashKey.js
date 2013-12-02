@@ -1,4 +1,4 @@
-define([], function() {
+define(function() {
 
     // Replacement for angular's hashKeys.
 
@@ -23,6 +23,7 @@ define([], function() {
      * Generated hash keys
      * contain at least one non-numeric prefix,
      * do not overflow, and
+     * are never repeated, and
      * do not overlap with angular's generated keys.
      *
      * @param {*} t the value for which the hash key is to be determined.
@@ -35,7 +36,7 @@ define([], function() {
             if(typeof key === 'function') {
                 key = key.call(t);
             } else if(key === undefined) {
-                obj.$$hashKey = key = angular_nextUid();
+                t.$$hashKey = key = angular_nextUid();
             }
         } else {
             key = t;

@@ -10,9 +10,8 @@
  * </pre>
  */
 define([
-    'pentaho/PentahoContext'
-],
-function(PentahoContext) {
+    './PentahoContext'
+], function(PentahoContext) {
     /**
      * The root pentaho context.
      * @type pentaho/PentahoContext
@@ -29,7 +28,7 @@ function(PentahoContext) {
     // Return the object implementing the "loader plugin interface".
     return {
         /**
-         * Creates a contextualized pentaho context object.
+         * Creates a "contextualized" pentaho context object.
          *
          * The returned context will resolve "require" dependencies
          * relative to the module that is requiring this context.

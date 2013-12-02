@@ -6,10 +6,6 @@ function(context, res) {
     /**
      * Register the "bar" visualization type,
      * by providing a definition object directly.
-     *
-     * The name of the service uses `:` to separate names
-     * to avoid possible confusion with JavaScript global names,
-     * if `.` were used, or with AMD names, if `/` were used.
      */
     context
     .value('pentaho:visualization:IVisualizationType', {
