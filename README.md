@@ -76,3 +76,21 @@ define([
     });
 })
 ```
+
+# Installing
+
+Execute:
+```
+$ npm install
+$ bower install
+```
+
+To run the unit tests:
+```
+$ karma start
+```
+
+Then, in another prompt execute:
+```
+$ karma run
+```
